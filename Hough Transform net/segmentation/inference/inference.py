@@ -1,11 +1,14 @@
 import argparse as args
+import gc
 import json
 import numpy as np
+import tifffile as tiff
 import torch
 import pathlib as Path
 
 from multiprocessing import cpu_count
 from segmentation.inference.dataset_loader import Data, pre_processing_transforms
+from segmentation.inference.postprocessing import postprocessing
 from segmentation.utils.unets import build_unet
 
 def inference(model: Path,
@@ -87,7 +90,7 @@ def inference(model: Path,
                                              pin_memory=True, # Sppeds up the location of data
                                              num_workers=num_workers)
     
-    # Predict images (iterate over images/files)
+    # Predict images over each batch (iterate over images/files)
     for sample in dataloader:
         
         img_batch, ids_batch, pad_batch, img_size = sample
@@ -124,3 +127,17 @@ def inference(model: Path,
                 save_raw_pred = False
             
             file_id = ids_batch[h].split('t')[-1] + '.tif'
+
+            # Apply postprocessing on the predected images
+            prediction_hough_transform, prediction_cell = postprocessing(prediction_hough_transform_batch[h],
+                                                                                     prediction_cell_batch[h])
+
+            # Save predected images  
+            tiff.imsave(str(result_path / ('cell' + file_id)), prediction_cell.astype(np.float32))
+            tiff.imsave(str(result_path / ('hough_transform' + file_id)), prediction_hough_transform.astype(np.float32))
+
+    # Clear memory
+    del net
+    gc.collect()
+
+    return None
