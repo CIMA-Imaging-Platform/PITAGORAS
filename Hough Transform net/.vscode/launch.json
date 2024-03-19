@@ -1,0 +1,17 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Current File",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            // Code for training:
+            // "args": ["-ct", "Fluo-N2DL-HeLa", "--split", "01"]
+            // Code for infering:
+            "args": ["-ct", "Fluo-N2DL-HeLa", "-m", "Fluo-N2DL-HeLa_01_model", "-s", "01"]
+
+        }
+    ]
+}
