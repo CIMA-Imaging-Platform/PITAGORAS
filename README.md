@@ -2,4 +2,4 @@
 
   1) Hough Transform Net --> contains the scripts of the developing net.
 
-  ![alt text](image.png)
+  ![alt text](Images/image.png)
