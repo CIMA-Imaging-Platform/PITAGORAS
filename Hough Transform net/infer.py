@@ -29,6 +29,7 @@ def main():
     # Tunable parameters:
     parser.add_argument('--apply_clahe', '-ac', default= False, type=bool, help='Apply Local Contrast Enhancement')    
     parser.add_argument('--batch_size', '-bs', default=8, type=int, help='Batch size')
+    parser.add_argument('--save_raw_pred', '-srp', default=False, action='store_true', help='Save some Hough Transform and EDT predictions')
     parser.add_argument('--scale', '-sc', default=1, type=float, help='Scale factor')
     args = parser.parse_args()
 
