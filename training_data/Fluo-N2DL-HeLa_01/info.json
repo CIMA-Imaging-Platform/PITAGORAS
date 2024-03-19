@@ -1,0 +1,11 @@
+{
+  "search_radius": 29,
+  "min_area": 77,
+  "max_mal": 58,
+  "scale": 1,
+  "crop_size": 320,
+  "min_x_dist": 0.03651293588302451,
+  "min_y_dist": 0.02460442444694877,
+  "used_crops": [],
+  "cell_type": "Fluo-N2DL-HeLa"
+}
