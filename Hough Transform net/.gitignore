@@ -9,7 +9,8 @@ __pycache__/
 # data files
 *.csv
 *.mpeg
-
+*.json
+*loss.txt
 *__pycache__
 *.idea
 *.pth
