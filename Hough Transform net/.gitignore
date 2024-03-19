@@ -14,6 +14,7 @@ __pycache__/
 *__pycache__
 *.idea
 *.pth
+*.ipynb
 
 # image data
 *.tif
