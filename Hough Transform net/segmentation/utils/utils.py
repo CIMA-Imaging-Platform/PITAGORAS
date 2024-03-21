@@ -50,11 +50,11 @@ def min_max_normalization(img, min_value=None, max_value=None):
 def write_train_info(configs, path):
     """ Write training configurations into a json file.
 
-    :param configs: Dictionary with configurations of the training process.
-        :type configs: dict
-    :param path: path to the directory to store the json file.
-        :type path: pathlib Path object
-    :return: None
+    - param configs: Dictionary with configurations of the training process.
+        - type configs: dict
+    - param path: path to the directory to store the json file.
+        - type path: pathlib Path object
+    - return: None
     """
 
     with open(path / (configs['run_name'] + '.json'), 'w', encoding='utf-8') as outfile:
