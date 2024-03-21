@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import scipy.ndimage as ndi 
 
-from skimage import filters
+from skimage import filters, morphology
 from tifffile import imsave
 from skimage.measure import regionprops, label
 from skimage.transform import hough_circle_peaks
@@ -164,11 +164,21 @@ def hough_transform_2D(image:np.array, labels:np.array):
                 int(max(data['bounding box'][1]-20, 0)):int(min(data['bounding box'][3]+20, img.shape[1]))
                     ] += label_crop_dist
         
-
+        
         ## Hough Transform
-        # Dilation of the label_crop to increment the boundaries of the TH, and be more conservative
-        kernel = np.ones((5, 5))
-        label_crop = cv2.dilate(label_crop, kernel)
+        # First is to dilate and erode the mask in order just to obtain the a border of the mask:
+        kernel = morphology.disk(1)
+        # Prellocation of the images
+        dilated_label_crop = np.zeros(label_crop.shape)
+        erode_label_crop = np.zeros(label_crop.shape)
+        # Isolate each cell
+        dilated_label_crop[np.where(data['mask'] == label_crop)] = 1
+        erode_label_crop[np.where(data['mask'] == label_crop)] = 1
+
+        dilated_label_crop = cv2.dilate(dilated_label_crop, kernel, iterations=1)
+        erode_label_crop = cv2.erode(erode_label_crop, kernel, iterations=4)
+
+        border_label_crop = dilated_label_crop - erode_label_crop
 
         # Getting the gradient on each direction
         Gx = ndi.sobel(img_crop, axis=0, mode= 'nearest')
@@ -176,24 +186,32 @@ def hough_transform_2D(image:np.array, labels:np.array):
         grad = np.sqrt(np.square(Gx) + np.square(Gy)) # Obtain the combinated gradient as the square root of the individual squared 
 
         # Look for the locations different to the label and equal them to 0
-        grad[np.where(data['mask'] != label_crop)] = 0
+        grad[np.where(border_label_crop != 1)] = 0
 
+        # Sum the mean to the pixels whose intensity is below the mean:
+        grad_modified = np.copy(grad)
+
+        c = ndi.mean(grad_modified, labels= border_label_crop)
+        for x, y in np.ndindex(grad_modified.shape):
+            grad_modified[x, y] += c if 0 < grad_modified[x, y] < c else 0
+            
         # Applay the Hough Transform:
         # Range of radii to search is [label_radii-5, label_radii+5], an interval of 0.1
         hough_radii = np.sort(abs(np.arange(data['radii']-1, data['radii']+1, 0.1)))
-        hough_res = hough_circle(grad, Gx= Gx, Gy= Gy, radius= hough_radii)
+        hough_res = hough_circle(grad_modified, Gx= Gx, Gy= Gy, radius= hough_radii)
 
         # Select the most prominent number of peaks within each accumulator:
         _ , _, _, radii = hough_circle_peaks(hough_res, hough_radii, num_peaks = 1, 
                                              total_num_peaks= 1, normalize= False)
-        # Finally join each HT as the final result adn add the third pseudo-color dimension:
+        # Finally join each HT as the final result and apply a Gaussian filter to smooth:
         crop_HT = hough_res[np.where(hough_radii == radii[0])[0][0],:,:]
+        crop_HT = filters.median(crop_HT, selem= morphology.disk(3))
 
         hough_transform[
                     int(max(data['bounding box'][0]-20, 0)):int(min(data['bounding box'][2]+20, img.shape[0])), 
                     int(max(data['bounding box'][1]-20, 0)):int(min(data['bounding box'][3]+20, img.shape[1]))
                         ] += crop_HT
-
+    # Add the third pseudo-color dimension to each image:
     hough_transform = np.expand_dims(hough_transform, axis=-1)
     label_dist = np.expand_dims(label_dist, axis=-1)
 
