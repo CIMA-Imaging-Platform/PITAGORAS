@@ -64,7 +64,7 @@ def main():
             for subset in subsets:
                 path_seg_results = path_data / ct / "{}_RES_{}".format(subset, model.stem)
                 path_seg_results.mkdir(exist_ok=True)
-                print(f'Inference using {model.stem} on {ct}_{subset}: th_seed: {args.th_seed}, th_cell: {args.th_cell}, scale: {args.scale}')
+                print(f'Inference using {model.stem} on {ct}_{subset}. Params: scale {args.scale}')
                 # Check if results already exist
                 if len(sorted(path_seg_results.glob('*.tif'))) > 0:
                     print('Segmentation results already exist (delete for new calculation).')
