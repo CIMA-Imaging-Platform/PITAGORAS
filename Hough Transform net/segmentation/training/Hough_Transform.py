@@ -124,10 +124,6 @@ def hough_transform_2D(image:np.array, labels:np.array):
     label_dist = np.zeros(shape= img.shape, dtype= float)
     hough_transform = np.zeros(shape= img.shape, dtype= float)
 
-    # Get the nucleii label from the mask, without the background
-    masks = np.unique(mask)
-    masks = masks[masks > 0]
-
     # Initialize the props of each label and a variable where to store them
     regions = regionprops(mask)
 
@@ -150,6 +146,7 @@ def hough_transform_2D(image:np.array, labels:np.array):
                     int(max(data['bounding box'][0]-20, 0)):int(min(data['bounding box'][2]+20, img.shape[0])), 
                     int(max(data['bounding box'][1]-20, 0)):int(min(data['bounding box'][3]+20, img.shape[1]))
                     ]
+        
         ## Eclidian Distance Transform
         # Apply the Euclidian Distance Transform:
         label_crop_dist = distance_transform_edt(label_crop == data['mask'])
@@ -160,12 +157,14 @@ def hough_transform_2D(image:np.array, labels:np.array):
             label_crop_dist = label_crop_dist / max_dist
         else:
             continue
+
         # Join the each cell EDT together
         label_dist[
                 int(max(data['bounding box'][0]-20, 0)):int(min(data['bounding box'][2]+20, img.shape[0])), 
                 int(max(data['bounding box'][1]-20, 0)):int(min(data['bounding box'][3]+20, img.shape[1]))
                     ] += label_crop_dist
         
+
         ## Hough Transform
         # Dilation of the label_crop to increment the boundaries of the TH, and be more conservative
         kernel = np.ones((5, 5))
@@ -174,7 +173,6 @@ def hough_transform_2D(image:np.array, labels:np.array):
         # Getting the gradient on each direction
         Gx = ndi.sobel(img_crop, axis=0, mode= 'nearest')
         Gy= ndi.sobel(img_crop, axis=1, mode= 'nearest')
-
         grad = np.sqrt(np.square(Gx) + np.square(Gy)) # Obtain the combinated gradient as the square root of the individual squared 
 
         # Look for the locations different to the label and equal them to 0
@@ -182,12 +180,12 @@ def hough_transform_2D(image:np.array, labels:np.array):
 
         # Applay the Hough Transform:
         # Range of radii to search is [label_radii-5, label_radii+5], an interval of 0.1
-        hough_radii = np.sort(abs(np.arange(data['radii']-5, data['radii'], 0.1)))
+        hough_radii = np.sort(abs(np.arange(data['radii']-1, data['radii']+1, 0.1)))
         hough_res = hough_circle(grad, Gx= Gx, Gy= Gy, radius= hough_radii)
 
         # Select the most prominent number of peaks within each accumulator:
         _ , _, _, radii = hough_circle_peaks(hough_res, hough_radii, num_peaks = 1, 
-                                                    total_num_peaks= 1, normalize= False)
+                                             total_num_peaks= 1, normalize= False)
         # Finally join each HT as the final result adn add the third pseudo-color dimension:
         crop_HT = hough_res[np.where(hough_radii == radii[0])[0][0],:,:]
 
