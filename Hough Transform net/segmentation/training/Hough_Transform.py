@@ -68,6 +68,7 @@ def _hough_circle(img, Gx, Gy, radius):
 
         # And normalize as the input image:
         acumulator[i,:,:] = 2**16 *(acumulator[i,:,:] - acumulator[i,:,:].min()) / (np.min(acumulator[i,:,:].max() - acumulator[i,:,:].min()))
+        acumulator[i,:,:] = np.clip(0, 2**16)
 
         return acumulator
 
