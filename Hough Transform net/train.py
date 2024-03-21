@@ -22,20 +22,23 @@ def main():
     random.seed()
     np.random.seed()
 
-    # Get arguments
+    # Get arguments for training:
     parser = argparse.ArgumentParser(description='Cell Segmentation - Training')
+     # Crucial input:
     parser.add_argument('--act_fun', '-af', default='relu', type=str, help='Activation function')
     parser.add_argument('--architecture', '-ac', default='DU', type=str, help='Type of net can be the double U-NET or the single U-Net')
-    parser.add_argument('--batch_size', '-bs', default=8, type=int, help='Batch size')
     parser.add_argument('--cell_type', '-ct', nargs='+', required=True, help='Cell type(s)')
+    parser.add_argument('--optimizer', '-o', default='adam', type=str, help='Optimizer')
+    parser.add_argument('--split', '-s', default='01+02', type=str, help='Train/val split')
+    # Tunable parameters:
+    parser.add_argument('--batch_size', '-bs', default=8, type=int, help='Batch size')
     parser.add_argument('--filters', '-f', nargs=2, type=int, default=[64, 1024], help='Filters for U-net')
     parser.add_argument('--iterations', '-i', default=1, type=int, help='Number of models to train')
     parser.add_argument('--loss', '-l', default='smooth_l1', type=str, help='Loss function')
     parser.add_argument('--multi_gpu', '-mgpu', default=True, action='store_true', help='Use multiple GPUs')
     parser.add_argument('--norm_method', '-nm', default='bn', type=str, help='Normalization method')
-    parser.add_argument('--optimizer', '-o', default='adam', type=str, help='Optimizer')
     parser.add_argument('--pool_method', '-pm', default='conv', type=str, help='Pool method')
-    parser.add_argument('--split', '-s', default='01+02', type=str, help='Train/val split')
+
     args = parser.parse_args()
 
     # Paths

@@ -482,7 +482,11 @@ class ToTensor(object):
 
         # Normalize image to [-1, 1] and the Hough Transform from [0, 1]
         sample['image'] = min_max_normalization(sample['image'])
-        sample['hough_transform_label'] = sample['hough_transform_label'] / sample['hough_transform_label'].max()
+
+        max_hough_transform_label = np.max(sample['hough_transform_label'])
+        if max_hough_transform_label > 0:
+            sample['hough_transform_label'] = sample['hough_transform_label'] / max_hough_transform_label
+
         # Swap axes from (H, W, Channels) to (Channels, H, W)
         for key in sample:
             if key != 'id':
