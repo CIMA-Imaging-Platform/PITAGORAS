@@ -18,6 +18,6 @@ def postprocessing(hough_transform_prediction:np.array, cell_prediction:np.array
     Instance cell and hough transform predictions.
     """
     # hough_transform_prediction = median_filter(hough_transform_prediction[:,:,0], size=(5,5))
-    # cell_prediction = gaussian_filter(cell_prediction[:,:,0], sigma=0.5)
+    cell_prediction = gaussian_filter(cell_prediction[:,:,0], sigma=0.5)
 
     return hough_transform_prediction, cell_prediction
