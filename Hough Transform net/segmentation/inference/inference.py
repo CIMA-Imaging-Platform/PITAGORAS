@@ -102,7 +102,7 @@ def inference(model: Path,
             img_size = [img_size[i][0] for i in range(len(img_size))]
 
         # Prediction
-        prediction_hough_transform_batch, prediction_cell_batch = net(img_batch)
+        prediction_cell_batch, prediction_hough_transform_batch  = net(img_batch)
 
         # Get rid of pads
         prediction_cell_batch = prediction_cell_batch[:, 0, pad_batch[0]:, pad_batch[1]:, None].cpu().numpy() # Dimensions [nº_path, pseudo_color, x, y]
