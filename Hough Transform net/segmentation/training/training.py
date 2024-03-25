@@ -88,20 +88,24 @@ def get_weights(net, weights, device, num_gpus):
 def train(net, datasets, configs, device, path_models, best_loss=1e4):
     """ Train the model.
 
-    :param net: Model/Network to train.
-        :type net:
-    :param datasets: Dictionary containing the training and the validation data set.
-        :type datasets: dict
-    :param configs: Dictionary with configurations of the training process.
-        :type configs: dict
-    :param device: Use (multiple) GPUs or CPU.
-        :type device: torch device
-    :param path_models: Path to the directory to save the models.
-        :type path_models: pathlib Path object
-    :param best_loss: Best loss (only needed for second run to see if val loss further improves).
-        :type best_loss: float
+    Params:
+    ---
+    - param net: Model/Network to train.
+        - type net:
+    - param datasets: Dictionary containing the training and the validation data set.
+        - type datasets: dict
+    - param configs: Dictionary with configurations of the training process.
+        - type configs: dict
+    - param device: Use (multiple) GPUs or CPU.
+        - type device: torch device
+    - param path_models: Path to the directory to save the models.
+        - type path_models: pathlib Path object
+    - param best_loss: Best loss (only needed for second run to see if val loss further improves).
+        - type best_loss: float
 
-    :return: None
+    Return: 
+    ---
+    None
     """
 
     print('-' * 20)

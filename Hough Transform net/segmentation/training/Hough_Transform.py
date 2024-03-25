@@ -66,7 +66,7 @@ def _hough_circle(img, Gx, Gy, radius):
             acumulator[i, tx, ty] += img[x[p], y[p]]
             # acumulator[i, tx, ty] += 1
 
-        # And normalize as the input image:
+        # And normalize as the input image 0, 2**16:
         acumulator[i,:,:] = 2**16 *(acumulator[i,:,:] - acumulator[i,:,:].min()) / (np.min(acumulator[i,:,:].max() - acumulator[i,:,:].min()))
 
         return acumulator
@@ -151,14 +151,14 @@ def hough_transform_2D(image:np.array, labels:np.array):
         # Apply the Euclidian Distance Transform:
         label_crop_dist = distance_transform_edt(label_crop == data['mask'])
 
-        # Normalize the distance map
+        # Normalize the distance map [0,1]
         max_dist = np.max(label_crop_dist)
         if max_dist > 0:
             label_crop_dist = label_crop_dist / max_dist
         else:
             continue
         
-        # Join the each cell EDT together
+        # Join the each cell crop EDT together
         label_dist[
                 int(max(data['bounding box'][0]-20, 0)):int(min(data['bounding box'][2]+20, img.shape[0])), 
                 int(max(data['bounding box'][1]-20, 0)):int(min(data['bounding box'][3]+20, img.shape[1]))
@@ -194,10 +194,15 @@ def hough_transform_2D(image:np.array, labels:np.array):
                     int(max(data['bounding box'][1]-20, 0)):int(min(data['bounding box'][3]+20, img.shape[1]))
                         ] += crop_HT
 
+    # Normalize the hough transform from [0,1]
+    max_hough_transform_label = np.max(hough_transform)
+    if max_hough_transform_label > 0:
+        hough_transform = hough_transform / max_hough_transform_label
+
     hough_transform = np.expand_dims(hough_transform, axis=-1)
     label_dist = np.expand_dims(label_dist, axis=-1)
 
-    return hough_transform, label_dist
+    return hough_transform.astype(np.float16), label_dist.astype(np.float16)
 
 def segmentation1(hough_img, dist_img):
     

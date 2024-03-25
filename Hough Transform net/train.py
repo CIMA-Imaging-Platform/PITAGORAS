@@ -12,9 +12,6 @@ from segmentation.training.transforms import augmentors
 from segmentation.training.training import train, get_max_epochs, get_weights
 from segmentation.training.create_training_sets import create_ctc_training_sets, CellSegDataset
 
-
-
-
 warnings.filterwarnings("ignore", category=UserWarning)
 
 def main():
@@ -103,13 +100,18 @@ def main():
         data_transforms = augmentors(label_type=train_configs['label_type'])
         train_configs['data_transforms'] = str(data_transforms)
         dataset_name = "{}_{}".format(trainset_name, args.split)
+        # By creating the inhereted Dataset object:
+        # - intensity image [-1,1], in the transform, datatype:
+        # - Hough Transform [0,1] datatype:
+        # - Dist_cell [0,1] datatype:
+        # Both last are normalized in the create_training_sets function.
         datasets = {x: CellSegDataset(root_dir=path_data / dataset_name, mode=x, transform=data_transforms[x])
                     for x in ['train', 'val']}
         
         # Get number of training epochs depending on dataset size (just roughly to decrease training time):
         train_configs['max_epochs'] = get_max_epochs(len(datasets['train']) + len(datasets['val']))
 
-         # Train model
+        # Train model
         best_loss = train(net=net, datasets=datasets, configs=train_configs, device=device, path_models=path_models)
 
         if train_configs['optimizer'] == 'ranger':
