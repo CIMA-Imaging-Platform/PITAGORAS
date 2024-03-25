@@ -139,4 +139,3 @@ class ToTensor(object):
         img = torch.from_numpy(img).to(torch.float)
 
         return img, sample['id'], sample['pads'], sample['original_size']
-

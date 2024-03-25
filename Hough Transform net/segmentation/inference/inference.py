@@ -115,7 +115,7 @@ def inference(model: Path,
         # Go through predicted batch and apply post-processing (not parallelized)
         for h in range(len(prediction_cell_batch)):
 
-            print('         ... processing {0} ...'.format(ids_batch[h]))
+            print('         ... processing infered {0} ...'.format(ids_batch[h]))
 
             # Get actual file number:
             file_num = int(ids_batch[h].split('t')[-1])
@@ -133,8 +133,8 @@ def inference(model: Path,
                                                                                      prediction_cell_batch[h])
 
             # Save predected images  
-            tiff.imsave(str(result_path / ('cell' + file_id)), prediction_cell.astype(np.float32))
-            tiff.imsave(str(result_path / ('hough_transform' + file_id)), prediction_hough_transform.astype(np.float32))
+            tiff.imsave(str(result_path / ('cell' + file_id)), prediction_cell.astype(np.float32), compress=1)
+            tiff.imsave(str(result_path / ('hough_transform' + file_id)), prediction_hough_transform.astype(np.float32), compress=1)
 
     # Clear memory
     del net
