@@ -33,6 +33,7 @@ def main():
     parser.add_argument('--iterations', '-i', default=1, type=int, help='Number of models to train')
     parser.add_argument('--loss', '-l', default='smooth_l1', type=str, help='Loss function')
     parser.add_argument('--multi_gpu', '-mgpu', default=True, action='store_true', help='Use multiple GPUs')
+    parser.add_argument('--model_surname', '-mn', default='', type=str, help='Model variation name. Fluo-N2DL-HeLa_01_model{add surname}')
     parser.add_argument('--norm_method', '-nm', default='bn', type=str, help='Normalization method')
     parser.add_argument('--pool_method', '-pm', default='conv', type=str, help='Pool method')
 
@@ -70,7 +71,7 @@ def main():
     create_ctc_training_sets(path_data=path_data, cell_type_list=args.cell_type, split=args.split)
 
     # Get model names and how many iterations/models need to be trained:
-    model_name = '{}_{}_model'.format(trainset_name, args.split)
+    model_name = '{}_{}_model{}'.format(trainset_name, args.split, args.model_surname)
 
     # Train multiple models
     for i in range(args.iterations):
