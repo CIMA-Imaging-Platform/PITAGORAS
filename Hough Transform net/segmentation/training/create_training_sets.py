@@ -171,7 +171,7 @@ def generate_data(img: np.array,
 
     Args:
     ---    
-    - img: original intensity image.
+    - img: original intensity image. Normalized from [0 65356]
     - mask: labeled image.
     - tra_gt: tracking groudtruth.
     - td_settings: settings for the Hough Transform.
@@ -232,7 +232,7 @@ def generate_data(img: np.array,
 
             # Save the images
             tiff.imsave(str(path / crop_quality / 'img_{}'.format(crop_name)), img_crop)
-            tiff.imsave(str(path / crop_quality / 'mask_{}'.format(crop_name)), mask_crop)
+            tiff.imsave(str(path / crop_quality / 'mask_{}'.format(crop_name)), mask_crop.astype(np.uint8))
             tiff.imsave(str(path / crop_quality / 'hough_transform_{}'.format(crop_name)), hough_transform)
             tiff.imsave(str(path / crop_quality / 'dist_cell_{}'.format(crop_name)), label_dist)
             
@@ -245,22 +245,22 @@ def generate_data(img: np.array,
 def get_crop(x, y, crop_size, *imgs):
     """ Get crop from image.
 
-    :param x: Grid position (x-dim).
-        :type x: int
-    :param y: Grid position (y-dim).
-        :type y: int
-    :param crop_size: size of the (square) crop
-        :type crop_size: int
-    :param imgs: Images to crop.
-        :type imgs:
-    :return: img crop.
+    - param x: Grid position (x-dim), over the crop matrix.
+        - type x: int
+    - param y: Grid position (y-dim), over the crop matrix.
+        - type y: int
+    - param crop_size: size of the (square) crop
+        - type crop_size: int
+    - param imgs: Images to crop.
+        - type imgs:
+    - return: img crop.
     """
 
     imgs_crop = []
 
     for img in imgs:
         img_crop = img[y * crop_size:(y + 1) * crop_size, x * crop_size:(x + 1) * crop_size, :]
-        imgs_crop.append(img_crop)
+        imgs_crop.append(img_crop) # Array whose 3d dimension contains the cropped images for each img and mask passed.
 
     return imgs_crop
 

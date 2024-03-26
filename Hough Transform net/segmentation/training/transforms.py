@@ -482,7 +482,7 @@ class ToTensor(object):
 
         # Normalize image to [-1, 1] and the Hough Transform from [0, 1]
         sample['image'] = min_max_normalization(sample['image'])
-
+        
         max_hough_transform_label = np.max(sample['hough_transform_label'])
         if max_hough_transform_label > 0:
             sample['hough_transform_label'] = sample['hough_transform_label'] / max_hough_transform_label
@@ -492,10 +492,9 @@ class ToTensor(object):
             if key != 'id':
                 sample[key] = np.transpose(sample[key], (2, 0, 1))
 
-        img = torch.from_numpy(sample['image']).to(torch.float)
-
         # loss function (l1loss/l2loss) needs float tensor with shape [batch, channels, height, width]
-        cell_label = torch.from_numpy(sample['cell_label']).to(torch.float)
+        img = torch.from_numpy(sample['image']).to(torch.float)
         hough_transform_label = torch.from_numpy(sample['hough_transform_label']).to(torch.float)
+        cell_label = torch.from_numpy(sample['cell_label']).to(torch.float)
 
         return img, hough_transform_label, cell_label

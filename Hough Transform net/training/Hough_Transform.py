@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import scipy.ndimage as ndi 
 
-from skimage import filters
+from skimage import filters, morphology
 from tifffile import imsave
 from skimage.measure import regionprops, label
 from skimage.transform import hough_circle_peaks
@@ -190,6 +190,7 @@ def hough_transform_2D(image:np.array, labels:np.array):
                                                     total_num_peaks= 1, normalize= False)
         # Finally join each HT as the final result adn add the third pseudo-color dimension:
         crop_HT = hough_res[np.where(hough_radii == radii[0])[0][0],:,:]
+        crop_HT = filters.median(crop_HT, selem= morphology.disk(5))
 
         hough_transform[
                     int(max(data['bounding box'][0]-20, 0)):int(min(data['bounding box'][2]+20, img.shape[0])), 
