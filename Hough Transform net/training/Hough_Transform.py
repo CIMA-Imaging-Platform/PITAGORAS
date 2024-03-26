@@ -196,6 +196,10 @@ def hough_transform_2D(image:np.array, labels:np.array):
                     int(max(data['bounding box'][0]-20, 0)):int(min(data['bounding box'][2]+20, img.shape[0])), 
                     int(max(data['bounding box'][1]-20, 0)):int(min(data['bounding box'][3]+20, img.shape[1]))
                         ] += crop_HT
+    
+    max_hough_transform = np.max(hough_transform)
+    if max_hough_transform > 0:
+        hough_transform = hough_transform / max_hough_transform
 
     hough_transform = np.expand_dims(hough_transform, axis=-1)
     label_dist = np.expand_dims(label_dist, axis=-1)
