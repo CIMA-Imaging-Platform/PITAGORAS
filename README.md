@@ -2,4 +2,5 @@
 
   1) Hough Transform Net --> contains the scripts of the developing net.
 
-  ![alt text](Images/image.png)
+  ![alt text](Images/Hough_transform_net.png)
+  ![alt text](Images/segmentation_image.png)

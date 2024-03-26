@@ -157,13 +157,14 @@ def hough_transform_2D(image:np.array, labels:np.array):
             label_crop_dist = label_crop_dist / max_dist
         else:
             continue
-        
-        # Join the each cell crop EDT together
+
+        # Join the each cell EDT together
         label_dist[
                 int(max(data['bounding box'][0]-20, 0)):int(min(data['bounding box'][2]+20, img.shape[0])), 
                 int(max(data['bounding box'][1]-20, 0)):int(min(data['bounding box'][3]+20, img.shape[1]))
                     ] += label_crop_dist
         
+
         ## Hough Transform
         # Dilation of the label_crop to increment the boundaries of the TH, and be more conservative
         kernel = np.ones((5, 5))
