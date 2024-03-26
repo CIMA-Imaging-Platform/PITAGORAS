@@ -188,7 +188,6 @@ def hough_transform_2D(image:np.array, labels:np.array):
                                              total_num_peaks= 1, normalize= False)
         # Finally join each HT as the final result adn add the third pseudo-color dimension:
         crop_HT = hough_res[np.where(hough_radii == radii[0])[0][0],:,:]
-        crop_HT = filters.median(crop_HT, selem= morphology.disk(5))
 
         hough_transform[
                     int(max(data['bounding box'][0]-20, 0)):int(min(data['bounding box'][2]+20, img.shape[0])), 
