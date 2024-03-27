@@ -8,7 +8,7 @@
             "program": "${file}",
             "console": "integratedTerminal",
             // Code for training:
-            "args": ["-ct", "Fluo-N2DL-HeLa", "--split", "01"]
+            "args": ["-ct", "Fluo-N2DL-HeLa", "--split", "01", "--surname_model", "_border_2"]
             // Code for infering:
             // "args": ["-ct", "Fluo-N2DL-HeLa", "-m", "Fluo-N2DL-HeLa_01_model_median_2", "-s", "01", "-bs", "4"]
 
