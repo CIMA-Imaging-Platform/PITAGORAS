@@ -198,8 +198,8 @@ def hough_transform_2D(image:np.array, labels:np.array):
             grad_modified[x, y] += c if 0 < grad_modified[x, y] < c else 0
 
         # Applay the Hough Transform:
-        # Range of radii to search is [label_radii-5, label_radii+5], an interval of 0.1
-        hough_radii = np.sort(abs(np.arange(data['radii']-5, data['radii'], 0.1)))
+        # Range of radii to search is [label_radii-1, label_radii+1], an interval of 0.1
+        hough_radii = np.sort(abs(np.arange(data['radii']-1, data['radii']+1, 0.1)))
         hough_res = hough_circle(grad_modified, Gx= Gx, Gy= Gy, radius= hough_radii)
 
         # Select the most prominent number of peaks within each accumulator:
