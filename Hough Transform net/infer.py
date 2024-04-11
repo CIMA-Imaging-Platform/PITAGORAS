@@ -24,6 +24,8 @@ def main():
     parser.add_argument('--cell_type', '-ct', required=True, nargs='+', help='Cell type(s) to predict')
     parser.add_argument('--model', '-m', required=True, type=str, help='Name of the net model to use')
     parser.add_argument('--subset', '-s', default='01+02', type=str, help='Subset to evaluate on')
+    parser.add_argument('--th_seeds', '-ts', default=0.05, type=int, help='Threshold value for the seeds extraction')
+    parser.add_argument('--th_cell', '-tc', default=0.07, type=int, help='Threshold value for the seeds extraction')
     # Tunable parameters:
     parser.add_argument('--apply_clahe', '-ac', default= False, type=bool, help='Apply Local Contrast Enhancement')    
     parser.add_argument('--batch_size', '-bs', default=8, type=int, help='Batch size')

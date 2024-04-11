@@ -7,6 +7,7 @@ import torch
 import pathlib as Path
 
 from multiprocessing import cpu_count
+from skimage.transform import resize
 from segmentation.inference.dataset_loader import Data, pre_processing_transforms
 from segmentation.inference.postprocessing import postprocessing
 from segmentation.utils.unets import build_unet
@@ -110,7 +111,7 @@ def inference(model: Path,
 
         # Save also some raw predictions (not all since float32 --> needs lot of memory)
         save_ids = [0, len(dataset) // 8, len(dataset) // 4, 3 * len(dataset) // 8, len(dataset) // 2,
-                    5 * len(dataset), 3 * len(dataset) // 4, 7 * len(dataset) // 8, len(dataset) - 1]
+                    5 * len(dataset) // 8, 3 * len(dataset) // 4, 7 * len(dataset) // 8, len(dataset) - 1]
 
         # Go through predicted batch and apply post-processing (not parallelized)
         for h in range(len(prediction_cell_batch)):
@@ -126,15 +127,22 @@ def inference(model: Path,
             else:
                 save_raw_pred = False
             
-            file_id = ids_batch[h].split('t')[-1] + '.tif'
+            file_id = f'{file_num:03d}.tif'
 
             # Apply postprocessing on the predected images
-            prediction_hough_transform, prediction_cell = postprocessing(prediction_hough_transform_batch[h],
-                                                                                     prediction_cell_batch[h])
-
+            result, prediction_hough_transform, prediction_cell = postprocessing(hough_transform_prediction=prediction_hough_transform_batch[h],
+                                                                                 cell_prediction=prediction_cell_batch[h], 
+                                                                                 args=args)
+            if args.scale < 1:
+                prediction_instance = resize(prediction_instance,
+                                             img_size,
+                                             order=0,
+                                             preserve_range=True,
+                                             anti_aliasing=False).astype(np.uint16)
             # Save predected images  
-            tiff.imsave(str(result_path / ('cell' + file_id)), prediction_cell.astype(np.float32), compress=1)
-            tiff.imsave(str(result_path / ('hough_transform' + file_id)), prediction_hough_transform.astype(np.float32), compress=1)
+            tiff.imwrite(str(result_path / ('mask' + file_id)), result, compress = 1)
+            tiff.imwrite(str(result_path / ('cell' + file_id)), np.squeeze(prediction_cell).astype(np.float32), compress=1)
+            tiff.imwrite(str(result_path / ('hough_transform' + file_id)), np.squeeze(prediction_hough_transform).astype(np.float32), compress=1)
 
     # Clear memory
     del net
