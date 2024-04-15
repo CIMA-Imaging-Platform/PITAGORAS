@@ -72,69 +72,66 @@ def main():
 
     # Get model names and how many iterations/models need to be trained:
     model_name = '{}_{}_model{}'.format(trainset_name, args.split, args.surname_model)
+    
+    # Define the path where the model is going to be stored
+    run_name = utils.unique_path(path_models, model_name)
 
-    # Train multiple models
-    for i in range(args.iterations):
-        
-        # Define the path where the model is going to be stored
-        run_name = utils.unique_path(path_models, model_name)
+    # Set up the double U-Net encoder:
+    train_configs = {'architecture': (args.architecture, args.act_fun, args.pool_method, args.norm_method, args.filters),
+                    'batch_size': args.batch_size,
+                    'batch_size_auto': 2,
+                    'label_type': "distance",
+                    'loss': args.loss,
+                    'num_gpus': num_gpus,
+                    'optimizer': args.optimizer,
+                    'run_name': run_name
+                    }
+    net = unets.build_unet(unet_type= train_configs['architecture'][0], 
+                        act_fun= train_configs['architecture'][1],
+                        pool_method= train_configs['architecture'][2],
+                        normalization= train_configs['architecture'][3],
+                        device= device,
+                        num_gpus= num_gpus,
+                        ch_in= 1,
+                        ch_out= 1,
+                        filters= train_configs['architecture'][4]
+                        )
 
-        # Set up the double U-Net encoder:
-        train_configs = {'architecture': (args.architecture, args.act_fun, args.pool_method, args.norm_method, args.filters),
-                         'batch_size': args.batch_size,
-                         'batch_size_auto': 2,
-                         'label_type': "distance",
-                         'loss': args.loss,
-                         'num_gpus': num_gpus,
-                         'optimizer': args.optimizer,
-                         'run_name': run_name
-                         }
-        net = unets.build_unet(unet_type= train_configs['architecture'][0], 
-                               act_fun= train_configs['architecture'][1],
-                               pool_method= train_configs['architecture'][2],
-                               normalization= train_configs['architecture'][3],
-                               device= device,
-                               num_gpus= num_gpus,
-                               ch_in= 1,
-                               ch_out= 1,
-                               filters= train_configs['architecture'][4]
-                               )
+    # Load training and validation set
+    data_transforms = augmentors(label_type=train_configs['label_type'])
+    train_configs['data_transforms'] = str(data_transforms)
+    dataset_name = "{}_{}".format(trainset_name, args.split)
+    # By creating the inhereted Dataset object:
+    # - intensity image [-1,1], in the transform, datatype:
+    # - Hough Transform [0,1] datatype:
+    # - Dist_cell [0,1] datatype:
+    # Both last are normalized in the create_training_sets function.
+    datasets = {x: CellSegDataset(root_dir=path_data / dataset_name, mode=x, transform=data_transforms[x])
+                for x in ['train', 'val']}
+    
+    # Get number of training epochs depending on dataset size (just roughly to decrease training time):
+    train_configs['max_epochs'] = get_max_epochs(len(datasets['train']) + len(datasets['val']))
 
-        # Load training and validation set
-        data_transforms = augmentors(label_type=train_configs['label_type'])
-        train_configs['data_transforms'] = str(data_transforms)
-        dataset_name = "{}_{}".format(trainset_name, args.split)
-        # By creating the inhereted Dataset object:
-        # - intensity image [-1,1], in the transform, datatype:
-        # - Hough Transform [0,1] datatype:
-        # - Dist_cell [0,1] datatype:
-        # Both last are normalized in the create_training_sets function.
-        datasets = {x: CellSegDataset(root_dir=path_data / dataset_name, mode=x, transform=data_transforms[x])
-                    for x in ['train', 'val']}
-        
-        # Get number of training epochs depending on dataset size (just roughly to decrease training time):
-        train_configs['max_epochs'] = get_max_epochs(len(datasets['train']) + len(datasets['val']))
+    # Train model
+    best_loss = train(net=net, datasets=datasets, configs=train_configs, device=device, path_models=path_models)
 
-        # Train model
-        best_loss = train(net=net, datasets=datasets, configs=train_configs, device=device, path_models=path_models)
+    if train_configs['optimizer'] == 'ranger':
+        net = unets.build_unet(unet_type=train_configs['architecture'][0],
+                            act_fun=train_configs['architecture'][2],
+                            pool_method=train_configs['architecture'][1],
+                            normalization=train_configs['architecture'][3],
+                            device=device,
+                            num_gpus=num_gpus,
+                            ch_in=1,
+                            ch_out=1,
+                            filters=train_configs['architecture'][4])
+        # Get best weights as starting point
+        net = get_weights(net=net, weights=str(path_models / '{}.pth'.format(run_name)), num_gpus=num_gpus, device=device)
+        # Train further
+        _ = train(net=net, datasets=datasets, configs=train_configs, device=device, path_models=path_models, best_loss=best_loss)
 
-        if train_configs['optimizer'] == 'ranger':
-            net = unets.build_unet(unet_type=train_configs['architecture'][0],
-                                   act_fun=train_configs['architecture'][2],
-                                   pool_method=train_configs['architecture'][1],
-                                   normalization=train_configs['architecture'][3],
-                                   device=device,
-                                   num_gpus=num_gpus,
-                                   ch_in=1,
-                                   ch_out=1,
-                                   filters=train_configs['architecture'][4])
-            # Get best weights as starting point
-            net = get_weights(net=net, weights=str(path_models / '{}.pth'.format(run_name)), num_gpus=num_gpus, device=device)
-            # Train further
-            _ = train(net=net, datasets=datasets, configs=train_configs, device=device, path_models=path_models, best_loss=best_loss)
-
-        # Write information to json-file
-        utils.write_train_info(configs=train_configs, path=path_models)
+    # Write information to json-file
+    utils.write_train_info(configs=train_configs, path=path_models)
 
 if __name__ == "__main__":
     

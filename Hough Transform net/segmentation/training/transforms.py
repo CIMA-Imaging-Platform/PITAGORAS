@@ -42,7 +42,9 @@ def augmentors(label_type: str, min_value: int= None, max_value: int= None):
                                                         ToTensor(label_type=label_type,
                                                                  min_value=min_value,
                                                                  max_value=max_value)]),
-                           'val': ToTensor(label_type=label_type, min_value=min_value, max_value=max_value)}
+                           'val': ToTensor(label_type=label_type, 
+                                           min_value=min_value, 
+                                           max_value=max_value)}
 
     return data_transforms
 

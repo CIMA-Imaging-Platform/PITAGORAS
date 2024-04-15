@@ -86,7 +86,7 @@ def inference(model: Path,
 
     # Load the data applying the tranforms on the dataset.
     dataloader = torch.utils.data.DataLoader(dataset, # Inhereted object from torch.utils.data.Dataset
-                                             batch_size=batchsize, 
+                                             batch_size=batchsize, # The bigger the higher computational cost will make
                                              shuffle=False, # False as we don't requiere a random order of the images
                                              pin_memory=True, # Sppeds up the location of data
                                              num_workers=num_workers)
@@ -106,7 +106,7 @@ def inference(model: Path,
         prediction_hough_transform_batch, prediction_cell_batch = net(img_batch)
 
         # Get rid of pads
-        prediction_cell_batch = prediction_cell_batch[:, 0, pad_batch[0]:, pad_batch[1]:, None].cpu().numpy() # Dimensions [nº_path, pseudo_color, x, y]
+        prediction_cell_batch = prediction_cell_batch[:, 0, pad_batch[0]:, pad_batch[1]:, None].cpu().numpy() # Dimensions [nº_patch, pseudo_color, x, y, new_dim]
         prediction_hough_transform_batch = prediction_hough_transform_batch[:, 0, pad_batch[0]:, pad_batch[1]:, None].cpu().numpy()
 
         # Save also some raw predictions (not all since float32 --> needs lot of memory)
@@ -141,8 +141,8 @@ def inference(model: Path,
                                              anti_aliasing=False).astype(np.uint16)
             # Save predected images  
             tiff.imwrite(str(result_path / ('mask' + file_id)), result, compress = 1)
-            tiff.imwrite(str(result_path / ('cell' + file_id)), np.squeeze(prediction_cell).astype(np.float32), compress=1)
-            tiff.imwrite(str(result_path / ('hough_transform' + file_id)), np.squeeze(prediction_hough_transform).astype(np.float32), compress=1)
+            tiff.imwrite(str(result_path / ('cell' + file_id)), np.squeeze(prediction_cell), compress=1)
+            tiff.imwrite(str(result_path / ('hough_transform' + file_id)), np.squeeze(prediction_hough_transform), compress=1)
 
     # Clear memory
     del net

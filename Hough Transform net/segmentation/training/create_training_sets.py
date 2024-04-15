@@ -235,11 +235,6 @@ def generate_data(img: np.array,
             tiff.imsave(str(path / crop_quality / 'mask_{}'.format(crop_name)), mask_crop.astype(np.uint8))
             tiff.imsave(str(path / crop_quality / 'hough_transform_{}'.format(crop_name)), hough_transform)
             tiff.imsave(str(path / crop_quality / 'dist_cell_{}'.format(crop_name)), label_dist)
-            
-            # Increase crop counter, until to achieve the last crop of the original image.
-            crop_idx += 1
-
-    return crop_idx
 
 
 def get_crop(x, y, crop_size, *imgs):
@@ -543,6 +538,7 @@ def create_ctc_training_sets(path_data: str,
                 else:
                     source_path = path_trainset / "B"
                 copy_train_data(source_path, path_trainset / train_mode, idx)
+
 
 class CellSegDataset(Dataset):
 

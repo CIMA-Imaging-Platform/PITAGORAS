@@ -51,7 +51,7 @@ def pre_processing_transforms(apply_clahe:bool, scale_factor:float):
     - param scale_factor: Downscaling factor <= 1.
         - type scale_factor: float
 
-     -return: transforms
+     - return: transforms
     """
 
     data_transforms = transforms.Compose([ContrastEnhancement(apply_clahe),
